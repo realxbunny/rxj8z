@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>rxj8z — The Ultimate Tech Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Firebase v9 compat -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#05050e;--bg2:#0b0b1c;--card:rgba(255,255,255,.042);--card2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.16);
+  --text:#eeeeff;--muted:rgba(238,238,255,.44);--dim:rgba(238,238,255,.18);
+  --blue:#5B73FF;--indigo:#8B5CF6;--amber:#F5A623;--green:#22D65F;--red:#FF4F64;
+  --sp:cubic-bezier(.34,1.56,.64,1);--ease:cubic-bezier(.25,.46,.45,.94);
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none;transition:background .4s,color .3s;}
+body.light{--bg:#f0f0fa;--bg2:#e8e8f5;--card:rgba(255,255,255,.7);--card2:rgba(255,255,255,.9);--border:rgba(0,0,0,.08);--border2:rgba(0,0,0,.16);--text:#0a0a18;--muted:rgba(10,10,24,.45);--dim:rgba(10,10,24,.2);}
+body.light .mesh{background:radial-gradient(ellipse 60% 50% at 15% 0%,rgba(91,115,255,.08) 0%,transparent 55%),radial-gradient(ellipse 50% 40% at 88% 80%,rgba(139,92,246,.06) 0%,transparent 55%);}
+body.light .nav{background:rgba(240,240,250,.85);}
+body.light .hero-h1{background:linear-gradient(150deg,#0a0a18 10%,var(--blue) 60%,var(--indigo) 100%);-webkit-background-clip:text;background-clip:text;}
+body.light .terminal{background:#fff;}
+body.light #cur{border-color:rgba(0,0,0,.5);mix-blend-mode:normal;}
+body.light #cdot{background:#0a0a18;}
+
+/* CURSOR */
+#cur{position:fixed;width:20px;height:20px;border:1.5px solid rgba(255,255,255,.65);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .22s var(--sp),height .22s var(--sp),background .2s;mix-blend-mode:difference;}
+#cur.h{width:42px;height:42px;background:rgba(255,255,255,.07);}
+#cur.c{width:8px;height:8px;}
+#cdot{position:fixed;width:3px;height:3px;background:#fff;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
+#prog{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--blue),var(--indigo),var(--amber));z-index:9999;transition:width .08s linear;box-shadow:0 0 8px rgba(91,115,255,.5);}
+
+/* NOISE */
+body::after{content:'';position:fixed;inset:0;opacity:.022;pointer-events:none;z-index:9997;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.mesh{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 15% 0%,rgba(91,115,255,.13) 0%,transparent 55%),radial-gradient(ellipse 50% 40% at 88% 80%,rgba(139,92,246,.11) 0%,transparent 55%),radial-gradient(ellipse 35% 30% at 50% 45%,rgba(245,166,35,.048) 0%,transparent 50%);}
+
+/* THEME BTN */
+#theme-btn{position:fixed;bottom:28px;right:24px;z-index:4000;width:48px;height:48px;border-radius:50%;background:rgba(12,12,26,.9);backdrop-filter:blur(20px);border:1px solid var(--border2);box-shadow:0 6px 24px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:all .4s var(--sp);}
+#theme-btn:hover{transform:scale(1.15) rotate(20deg);}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:5000;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(28px);background:rgba(5,5,14,.78);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:900;font-size:20px;text-decoration:none;letter-spacing:-.04em;background:linear-gradient(120deg,#fff 20%,var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-links{display:flex;align-items:center;gap:26px;}
+.nav-link{font-size:13px;color:var(--muted);text-decoration:none;font-weight:500;transition:color .2s;letter-spacing:.01em;}
+.nav-link:hover{color:var(--text);}
+.nav-auth{display:flex;align-items:center;gap:9px;}
+.nb{font-size:12px;font-weight:600;padding:7px 18px;border-radius:50px;border:none;cursor:pointer;transition:all .3s var(--sp);font-family:'DM Sans',sans-serif;}
+.nb-in{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.nb-in:hover{background:var(--card2);color:var(--text);border-color:var(--border2);}
+.nb-up{background:var(--blue);color:#fff;box-shadow:0 0 22px rgba(91,115,255,.32);}
+.nb-up:hover{transform:scale(1.06);box-shadow:0 0 32px rgba(91,115,255,.5);}
+/* Avatar dropdown */
+.nav-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--indigo));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;position:relative;border:2px solid rgba(91,115,255,.35);}
+.dropdown{position:absolute;top:calc(100% + 12px);right:0;background:rgba(10,10,24,.97);border:1px solid var(--border2);border-radius:16px;padding:8px;min-width:190px;opacity:0;pointer-events:none;transform:translateY(-6px) scale(.97);transition:all .25s var(--ease);backdrop-filter:blur(24px);box-shadow:0 20px 60px rgba(0,0,0,.7);}
+.nav-av:hover .dropdown,.nav-av:focus-within .dropdown{opacity:1;pointer-events:all;transform:translateY(0) scale(1);}
+.dd-head{padding:8px 12px 6px;font-size:11px;color:var(--dim);border-bottom:1px solid var(--border);margin-bottom:4px;}
+.dd-email{font-size:12px;color:var(--muted);font-weight:500;padding:2px 0;}
+.dd-link{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;font-size:13px;color:var(--muted);cursor:pointer;transition:all .2s;text-decoration:none;background:none;border:none;width:100%;font-family:'DM Sans',sans-serif;}
+.dd-link:hover{background:var(--card2);color:var(--text);}
+.dd-sep{height:1px;background:var(--border);margin:4px 0;}
+.dd-red{color:var(--red)!important;}
+.hidden{display:none!important;}
+@media(max-width:768px){.nav-links{display:none;}.nav{padding:0 18px;}body{cursor:auto;}#cur,#cdot{display:none;}}
+
+/* TICKER */
+.ticker-wrap{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(255,255,255,.012);padding:10px 0;position:relative;z-index:1;}
+.ticker{display:flex;white-space:nowrap;animation:tick 30s linear infinite;}
+.ti{font-size:10.5px;color:var(--muted);padding:0 24px;display:flex;align-items:center;gap:8px;flex-shrink:0;font-weight:500;letter-spacing:.05em;text-transform:uppercase;}
+.tdot{width:3px;height:3px;border-radius:50%;background:var(--blue);opacity:.6;}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 60px;position:relative;z-index:1;overflow:hidden;}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);border:1px solid rgba(34,214,95,.28);background:rgba(34,214,95,.07);padding:5px 15px;border-radius:50px;margin-bottom:26px;animation:fu .8s ease both;}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+.hero-h1{font-family:'Syne',sans-serif;font-size:clamp(76px,16vw,158px);font-weight:900;letter-spacing:-.065em;line-height:.88;margin-bottom:14px;animation:fu .8s .06s ease both;background:linear-gradient(148deg,#fff 18%,rgba(91,115,255,.88) 58%,rgba(139,92,246,.78) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 70px rgba(91,115,255,.14));}
+.hero-sub{font-size:clamp(14px,2.4vw,19px);font-weight:300;color:var(--muted);max-width:420px;line-height:1.65;margin-bottom:12px;animation:fu .8s .12s ease both;}
+.hero-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:44px;animation:fu .8s .18s ease both;}
+.pill{background:rgba(255,255,255,.045);border:1px solid var(--border);padding:5px 13px;border-radius:50px;font-size:12px;color:var(--muted);transition:all .3s var(--sp);}
+.pill:hover{background:rgba(91,115,255,.14);border-color:rgba(91,115,255,.38);color:#fff;transform:translateY(-2px) scale(1.07);}
+.hero-slides{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px;animation:fu .8s .24s ease both;}
+
+/* STATS STRIP */
+.stats-strip{display:flex;justify-content:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border);position:relative;z-index:1;}
+.stat-item{flex:1;max-width:200px;padding:26px 16px;text-align:center;border-right:1px solid var(--border);transition:background .3s;}
+.stat-item:last-child{border-right:none;}
+.stat-item:hover{background:var(--card);}
+.stat-num{font-family:'Syne',sans-serif;font-size:34px;font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:4px;}
+.stat-lbl{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:500;}
+@media(max-width:580px){.stats-strip{flex-wrap:wrap;}.stat-item{min-width:50%;border-bottom:1px solid var(--border);}}
+
+/* SECTION */
+.sec{padding:84px 32px;max-width:1100px;margin:0 auto;position:relative;z-index:1;}
+.sec-lbl{font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.sec-lbl::before{content:'';width:18px;height:1px;background:var(--blue);}
+.sec-ttl{font-family:'Syne',sans-serif;font-size:clamp(26px,5vw,44px);font-weight:800;letter-spacing:-.03em;margin-bottom:40px;line-height:1.08;}
+
+/* GLASS CARD */
+.card{background:var(--card);border:1px solid var(--border);border-top-color:var(--border2);border-radius:18px;position:relative;overflow:hidden;transition:all .38s var(--ease);}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(148deg,rgba(255,255,255,.055) 0%,transparent 42%);pointer-events:none;z-index:0;}
+.card>*:not(.card-inner){position:relative;z-index:1;}
+.card:hover{background:var(--card2);border-color:var(--border2);transform:translateY(-4px);box-shadow:0 22px 60px rgba(0,0,0,.38);}
+.tilt{transform-style:preserve-3d;}
+
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;}
+@media(max-width:720px){.about-grid{grid-template-columns:1fr;}.am-span{grid-column:unset!important;}}
+.am-span{grid-column:span 2;}
+.about-main{padding:32px;border-radius:22px;}
+.about-sm{padding:22px;border-radius:18px;}
+.ai{font-size:24px;margin-bottom:12px;display:block;}
+.at{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:7px;}
+.ax{font-size:14px;color:var(--muted);line-height:1.72;}
+.terminal{background:#050508;border:1px solid var(--border);border-radius:18px;overflow:hidden;font-family:'SF Mono','Fira Code',monospace;}
+.tbar{background:rgba(255,255,255,.028);padding:11px 16px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border);}
+.td{width:10px;height:10px;border-radius:50%;}.td.r{background:#FF5F57;}.td.y{background:#FFBD2E;}.td.g{background:#28CA41;}
+.ttl{font-size:11px;color:var(--dim);margin:0 auto;font-family:inherit;}
+.tbody{padding:16px 20px;font-size:12px;line-height:2.1;min-height:140px;max-height:210px;overflow-y:auto;}
+.tc{color:var(--green);}.tb{color:var(--blue);}.to{color:var(--amber);}.tp{color:var(--indigo);}.tm{color:var(--muted);}
+.tcur{display:inline-block;width:7px;height:13px;background:var(--green);animation:cb 1s infinite;vertical-align:middle;margin-left:2px;}
+@keyframes cb{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+/* VIDEO TRACK */
+.track-wrap{margin:0 -32px;}
+.track-head{display:flex;align-items:flex-end;justify-content:space-between;padding:0 32px;margin-bottom:18px;gap:12px;flex-wrap:wrap;}
+.track-title{font-family:'Syne',sans-serif;font-size:clamp(22px,4vw,38px);font-weight:800;letter-spacing:-.03em;}
+.track-meta{font-size:12px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:8px;}
+.yt-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;animation:blink 1s infinite;}
+.arrows{display:flex;gap:7px;}
+.arr{width:34px;height:34px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s var(--sp);}
+.arr:hover{background:var(--card2);border-color:var(--border2);transform:scale(1.1);}
+.arr:active{transform:scale(.9);}
+.track{display:flex;gap:13px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:6px 32px 26px;cursor:grab;}
+.track:active{cursor:grabbing;}
+.track::-webkit-scrollbar{display:none;}
+.vc{min-width:275px;border-radius:16px;overflow:hidden;flex-shrink:0;cursor:pointer;text-decoration:none;color:inherit;display:block;transition:all .42s var(--ease);}
+.vc:hover{transform:translateY(-9px) scale(1.02);box-shadow:0 32px 80px rgba(0,0,0,.6)!important;}
+.vth{height:155px;background:#111;position:relative;overflow:hidden;}
+.vth img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease;}
+.vc:hover .vth img{transform:scale(1.06);}
+.vplay{position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background .3s;}
+.vc:hover .vplay{background:rgba(0,0,0,.5);}
+.vpbtn{width:48px;height:48px;background:rgba(255,255,255,.93);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#000;font-size:17px;padding-left:3px;opacity:0;transform:scale(.5);transition:all .4s var(--sp);}
+.vc:hover .vpbtn{opacity:1;transform:scale(1);}
+.vbody{padding:13px;background:var(--card);}
+.vtag{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(91,115,255,.17);color:var(--blue);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase;}
+.vtitle{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:4px;}
+.vmeta{font-size:11px;color:var(--muted);}
+.vsk{min-width:275px;border-radius:16px;overflow:hidden;flex-shrink:0;background:var(--card);border:1px solid var(--border);}
+.vsk-img{height:155px;background:linear-gradient(90deg,rgba(255,255,255,.03) 0%,rgba(255,255,255,.07) 50%,rgba(255,255,255,.03) 100%);background-size:200%;animation:shim 1.6s infinite;}
+.vsk-body{padding:13px;display:flex;flex-direction:column;gap:8px;}
+.vsk-line{height:9px;border-radius:4px;background:linear-gradient(90deg,rgba(255,255,255,.03) 0%,rgba(255,255,255,.07) 50%,rgba(255,255,255,.03) 100%);background-size:200%;animation:shim 1.6s .2s infinite;}
+.vsk-line.s{width:55%;}
+@keyframes shim{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* 🔐 RESOURCES SECTION */
+.res-locked{display:flex;flex-direction:column;align-items:center;text-align:center;padding:60px 24px;gap:18px;}
+.lock-icon{width:76px;height:76px;border-radius:22px;background:rgba(91,115,255,.09);border:1px solid rgba(91,115,255,.2);display:flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:4px;transition:transform .4s var(--sp);}
+.res-locked:hover .lock-icon{transform:scale(1.08) rotate(-5deg);}
+.lock-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;}
+.lock-sub{font-size:14px;color:var(--muted);max-width:340px;line-height:1.65;}
+.lock-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.btn-p{background:var(--blue);color:#fff;padding:12px 26px;border-radius:50px;font-size:13px;font-weight:600;border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:all .3s var(--sp);box-shadow:0 0 26px rgba(91,115,255,.32);font-family:'DM Sans',sans-serif;}
+.btn-p:hover{transform:scale(1.06);box-shadow:0 0 38px rgba(91,115,255,.5);}
+.btn-s{background:var(--card);color:var(--text);padding:12px 26px;border-radius:50px;font-size:13px;font-weight:600;border:1px solid var(--border);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:all .3s var(--sp);font-family:'DM Sans',sans-serif;}
+.btn-s:hover{background:var(--card2);border-color:var(--border2);}
+.res-unlocked{display:none;}
+.res-user-bar{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:rgba(91,115,255,.07);border:1px solid rgba(91,115,255,.18);border-radius:14px;margin-bottom:20px;}
+.rub-l{display:flex;align-items:center;gap:10px;font-size:13px;}
+.rub-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--indigo));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+.rub-name{font-weight:600;}
+.rub-r a{font-size:12px;color:var(--muted);cursor:pointer;transition:color .2s;}
+.rub-r a:hover{color:var(--text);}
+.res-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
+.rf{padding:6px 15px;border-radius:50px;font-size:11px;font-weight:600;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .25s;font-family:'DM Sans',sans-serif;}
+.rf.on,.rf:hover{background:rgba(91,115,255,.14);border-color:rgba(91,115,255,.36);color:var(--text);}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:13px;}
+.res-card{border-radius:16px;padding:19px;display:flex;flex-direction:column;gap:11px;cursor:pointer;text-decoration:none;color:inherit;transition:all .35s var(--ease);}
+.res-card:hover{background:var(--card2);border-color:var(--border2);transform:translateY(-3px);}
+.res-top{display:flex;align-items:center;justify-content:space-between;}
+.res-badge{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 9px;border-radius:20px;}
+.rb-link{background:rgba(91,115,255,.15);color:var(--blue);}
+.rb-file{background:rgba(245,166,35,.15);color:var(--amber);}
+.rb-photo{background:rgba(34,214,95,.15);color:var(--green);}
+.rb-video{background:rgba(255,79,100,.15);color:var(--red);}
+.res-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;line-height:1.3;}
+.res-desc{font-size:12.5px;color:var(--muted);line-height:1.6;flex:1;}
+.res-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.res-date{font-size:10px;color:var(--dim);}
+.res-action{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:6px 13px;border-radius:50px;border:1px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;transition:all .25s;text-decoration:none;font-family:'DM Sans',sans-serif;}
+.res-action:hover{background:var(--card2);color:var(--text);border-color:var(--border2);}
+.res-empty{text-align:center;padding:44px 24px;color:var(--muted);grid-column:1/-1;font-size:14px;}
+.res-thumb{width:100%;height:120px;border-radius:10px;object-fit:cover;display:block;background:var(--card);}
+
+/* GEAR */
+.gc{min-width:215px;border-radius:16px;padding:19px;display:flex;flex-direction:column;gap:10px;flex-shrink:0;transition:all .4s var(--ease);}
+.gc:hover{transform:translateY(-5px) scale(1.02);}
+.gico{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.gn{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.gd{font-size:12px;color:var(--muted);line-height:1.5;}
+
+/* COMMUNITY */
+.cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:13px;}
+.cc{border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:13px;transition:all .4s var(--ease);}
+.cc:hover{transform:translateY(-5px);}
+.cp{display:flex;align-items:center;gap:11px;}
+.ci{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cn{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+.ch{font-size:11px;color:var(--muted);}
+.cd{font-size:13px;color:var(--muted);line-height:1.62;}
+
+/* SLIDE BUTTONS */
+.slides-col{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px;}
+.sld{position:relative;width:100%;height:57px;border-radius:50px;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none;}
+.sld-bg{position:absolute;inset:0;}
+.sld-bg.yt{background:linear-gradient(118deg,#c4302b,#ff0000);}
+.sld-bg.ig{background:linear-gradient(118deg,#405de6,#833ab4,#e1306c,#fd1d1d);}
+.sld-bg.tg{background:linear-gradient(118deg,#006aad,#229ed9);}
+.sld-shine{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);background-size:200%;animation:shine 3.5s ease-in-out infinite;pointer-events:none;}
+@keyframes shine{0%{background-position:200% 0}65%,100%{background-position:-200% 0}}
+.sld-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:600;color:rgba(255,255,255,.82);pointer-events:none;transition:opacity .2s;font-family:'DM Sans',sans-serif;}
+.sld-lbl svg{width:16px;height:16px;flex-shrink:0;}
+.sld-thumb{position:absolute;top:5px;left:5px;width:47px;height:47px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,.28);z-index:3;cursor:grab;}
+.sld-thumb:active{cursor:grabbing;}
+.sld-thumb svg{width:22px;height:22px;}
+.sld-thumb.pop{animation:pop .4s var(--sp);}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.22)}100%{transform:scale(1)}}
+.sld.done .sld-lbl{opacity:0;}
+
+/* SUB BANNER */
+.sub-banner{border-radius:24px;padding:52px 36px;text-align:center;position:relative;overflow:hidden;}
+.sub-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(91,115,255,.09) 0%,rgba(139,92,246,.07) 50%,rgba(245,166,35,.04) 100%);pointer-events:none;}
+.sub-banner::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 65% at 50% 0%,rgba(91,115,255,.11),transparent);pointer-events:none;}
+.sb-t{font-family:'Syne',sans-serif;font-size:clamp(22px,5vw,38px);font-weight:800;letter-spacing:-.03em;margin-bottom:9px;position:relative;z-index:1;}
+.sb-s{font-size:14px;color:var(--muted);margin-bottom:28px;position:relative;z-index:1;}
+.sb-row{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
+.sb-row .sld{max-width:265px;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.9);backdrop-filter:blur(24px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal-box{background:#080814;border:1px solid var(--border2);border-radius:24px;overflow:hidden;width:100%;max-width:860px;transform:scale(.88) translateY(24px);transition:transform .5s var(--sp);box-shadow:0 60px 140px rgba(0,0,0,.95);}
+.modal-bg.open .modal-box{transform:scale(1) translateY(0);}
+.modal-box iframe{width:100%;aspect-ratio:16/9;display:block;border:none;}
+.modal-foot{padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(255,255,255,.022);border-top:1px solid var(--border);}
+.modal-title{font-size:13px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);}
+.modal-close{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s var(--sp);font-family:'DM Sans',sans-serif;}
+.modal-close:hover{background:var(--card2);border-color:var(--border2);}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .72s var(--ease),transform .72s var(--sp);}
+.reveal.on{opacity:1;transform:translateY(0);}
+@keyframes fu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+footer{border-top:1px solid var(--border);padding:26px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;color:var(--dim);font-size:12px;position:relative;z-index:1;}
+.f-logo{font-family:'Syne',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(120deg,#fff,var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.f-links{display:flex;gap:18px;flex-wrap:wrap;}
+.f-link{color:var(--dim);text-decoration:none;font-size:12px;transition:color .2s;}
+.f-link:hover{color:var(--text);}
+::selection{background:rgba(91,115,255,.38);}
+@media(max-width:600px){.sec{padding:60px 18px;}.track{padding:6px 18px 22px;}.track-head,.track-wrap{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px;}.track-wrap{margin:0 -18px;}}
+</style>
+</head>
+<body>
+
+<div id="cur"></div><div id="cdot"></div>
+<div id="prog"></div>
+<div class="mesh"></div>
+
+<!-- FIREBASE CONFIG — Replace with YOUR values after setup -->
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBENiFatE6ZAd86GfmC2JECwjYedMKdSbA",
+  authDomain: "rxj8z-backend.firebaseapp.com",
+  projectId: "rxj8z-backend",
+  storageBucket: "rxj8z-backend.firebasestorage.app",
+  messagingSenderId: "170293636064",
+  appId: "1:170293636064:web:bd9893cc73f12f6d229985"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+</script>
+
+<!-- THEME BTN -->
+<button id="theme-btn" title="Toggle theme">🌙</button>
+<script>
+(function(){
+  var b=document.getElementById('theme-btn');
+  var l=localStorage.getItem('rxj8z-theme')==='light';
+  function a(){document.body.classList.toggle('light',l);b.textContent=l?'🌙':'☀️';}
+  a();
+  b.addEventListener('click',function(){l=!l;localStorage.setItem('rxj8z-theme',l?'light':'dark');a();});
+})();
+</script>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-logo" href="#">rxj8z</a>
+  <div class="nav-links">
+    <a class="nav-link" href="#about">About</a>
+    <a class="nav-link" href="#content">Videos</a>
+    <a class="nav-link" href="#resources">Resources</a>
+    <a class="nav-link" href="#gear">Gear</a>
+    <a class="nav-link" href="#community">Community</a>
+  </div>
+  <div class="nav-auth" id="nav-auth">
+    <a class="nb nb-in" href="login.html">Sign In</a>
+    <a class="nb nb-up" href="login.html?mode=signup">Sign Up</a>
+  </div>
+  <!-- Avatar shown when signed in -->
+  <div class="nav-av hidden" id="nav-avatar" tabindex="0">
+    <span id="av-letter">R</span>
+    <div class="dropdown">
+      <div class="dd-head">
+        <div id="dd-name" style="font-size:13px;font-weight:600;color:var(--text);"></div>
+        <div class="dd-email" id="dd-email"></div>
+      </div>
+      <a class="dd-link" href="#resources">📎 My Resources</a>
+      <a class="dd-link" id="dd-admin" href="admin.html" style="display:none;">⚙️ Admin Panel</a>
+      <div class="dd-sep"></div>
+      <button class="dd-link dd-red" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <div class="ti"><span class="tdot"></span>Gadgets</div><div class="ti"><span class="tdot"></span>Web Dev</div>
+    <div class="ti"><span class="tdot"></span>AI Tools</div><div class="ti"><span class="tdot"></span>Tech Tips</div>
+    <div class="ti"><span class="tdot"></span>Reviews</div><div class="ti"><span class="tdot"></span>Digital World</div>
+    <div class="ti"><span class="tdot"></span>Join the Revolution 🚀</div>
+    <div class="ti"><span class="tdot"></span>Gadgets</div><div class="ti"><span class="tdot"></span>Web Dev</div>
+    <div class="ti"><span class="tdot"></span>AI Tools</div><div class="ti"><span class="tdot"></span>Tech Tips</div>
+    <div class="ti"><span class="tdot"></span>Reviews</div><div class="ti"><span class="tdot"></span>Digital World</div>
+    <div class="ti"><span class="tdot"></span>Join the Revolution 🚀</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge"><span class="ldot"></span>New videos every week</div>
+  <h1 class="hero-h1">rxj8z</h1>
+  <p class="hero-sub">Decoding the digital world for you 🌐</p>
+  <div class="hero-pills">
+    <span class="pill">⚡ Gadgets</span><span class="pill">🌐 Web</span>
+    <span class="pill">💡 Tips</span><span class="pill">🤖 AI</span><span class="pill">📱 Tech</span>
+  </div>
+  <div class="hero-slides">
+    <div class="sld" id="sld-yt" data-url="https://youtube.com/@rxj8z">
+      <div class="sld-bg yt"></div><div class="sld-shine"></div>
+      <div class="sld-lbl"><svg viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4L15.8 12l-6.3 3.6z"/></svg>Slide to Subscribe</div>
+      <div class="sld-thumb" id="th-yt"><svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4L15.8 12l-6.3 3.6z"/></svg></div>
+    </div>
+    <div class="sld" id="sld-ig" data-url="https://www.instagram.com/rxj8z">
+      <div class="sld-bg ig"></div><div class="sld-shine"></div>
+      <div class="sld-lbl"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.6 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1s-3.6 0-4.8-.1C3.9 21.6 2.3 20 2.2 16.8c-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.3 3.9 3.9 2.3 7.2 2.2 8.4 2.1 8.8 2.2 12 2.2zm0-2.2C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9C.3 21.3 2.7 23.7 7.1 23.9 8.3 24 8.7 24 12 24s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9C23.7 2.7 21.3.3 16.9.1 15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 12 5.8zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8z"/></svg>Slide to Follow</div>
+      <div class="sld-thumb" id="th-ig"><svg viewBox="0 0 24 24"><defs><linearGradient id="ig1" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fd1d1d"/><stop offset="50%" stop-color="#833ab4"/><stop offset="100%" stop-color="#405de6"/></linearGradient></defs><path fill="url(#ig1)" d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.6 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1s-3.6 0-4.8-.1C3.9 21.6 2.3 20 2.2 16.8c-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.3 3.9 3.9 2.3 7.2 2.2 8.4 2.1 8.8 2.2 12 2.2zm0-2.2C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9C.3 21.3 2.7 23.7 7.1 23.9 8.3 24 8.7 24 12 24s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9C23.7 2.7 21.3.3 16.9.1 15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 12 5.8zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8z"/></svg></div>
+    </div>
+    <div class="sld" id="sld-tg" data-url="https://t.me/+YBjT6hbWzE44ODc1">
+      <div class="sld-bg tg"></div><div class="sld-shine"></div>
+      <div class="sld-lbl"><svg viewBox="0 0 24 24" fill="white"><path d="M12 0a12 12 0 1 0 0 24A12 12 0 0 0 12 0zm5 7.2-2 9.3c-.1.5-.5.7-.9.4l-2.5-1.8-1.2 1.1c-.1.1-.3.2-.6.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1L6.2 14.8l-2.4-.8c-.5-.2-.5-.5.1-.7l9.5-3.7c.5-.2.9.1.6.6z"/></svg>Slide to Join Telegram</div>
+      <div class="sld-thumb" id="th-tg"><svg viewBox="0 0 24 24" fill="#229ed9"><path d="M12 0a12 12 0 1 0 0 24A12 12 0 0 0 12 0zm5 7.2-2 9.3c-.1.5-.5.7-.9.4l-2.5-1.8-1.2 1.1c-.1.1-.3.2-.6.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1L6.2 14.8l-2.4-.8c-.5-.2-.5-.5.1-.7l9.5-3.7c.5-.2.9.1.6.6z"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip reveal">
+  <div class="stat-item"><div class="stat-num" style="color:var(--red)">∞</div><div class="stat-lbl">Content Drops</div></div>
+  <div class="stat-item"><div class="stat-num" style="color:var(--blue)">4+</div><div class="stat-lbl">Platforms</div></div>
+  <div class="stat-item"><div class="stat-num" style="color:var(--green)">100%</div><div class="stat-lbl">Free Content</div></div>
+  <div class="stat-item"><div class="stat-num" style="color:var(--amber)">🚀</div><div class="stat-lbl">Growing Fast</div></div>
+</div>
+
+<!-- ABOUT -->
+<div class="sec" id="about">
+  <div class="sec-lbl reveal">About</div>
+  <h2 class="sec-ttl reveal">Meet Raj &<br>the rxj8z mission</h2>
+  <div class="about-grid reveal">
+    <div class="card about-main tilt am-span">
+      <span class="ai">👋</span>
+      <div class="at" style="font-size:17px;margin-bottom:10px;">The Ultimate Tech Guide ⚡</div>
+      <div class="ax">Hey, I'm <strong>Raj</strong> — the mind behind <strong>rxj8z</strong>. I create content that cuts through the noise and decodes the digital world in a way that actually makes sense.<br><br>From the latest gadgets and web tools to AI breakthroughs and life-changing tips — if it's tech, I'm on it. No fluff. No gatekeeping. Just real, practical knowledge for curious minds ready to join the revolution. 🚀</div>
+    </div>
+    <div class="card about-sm tilt">
+      <span class="ai">🎯</span><div class="at">What I Cover</div>
+      <div class="ax">Gadgets · Web Dev · AI Tools · Tech Tips · Digital Trends — mixed, honest, and always useful.</div>
+    </div>
+    <div class="card about-sm tilt">
+      <span class="ai">🌐</span><div class="at">The Mission</div>
+      <div class="ax">Make tech accessible to everyone. Whether you're a beginner or a builder — rxj8z is for you.</div>
+    </div>
+    <div class="terminal am-span">
+      <div class="tbar"><div class="td r"></div><div class="td y"></div><div class="td g"></div><div class="ttl">raj@rxj8z — terminal</div></div>
+      <div class="tbody" id="term-out"><span class="tcur" id="tcur"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEOS -->
+<div class="sec" id="content">
+  <div class="sec-lbl reveal">Content</div>
+  <div class="reveal track-wrap">
+    <div class="track-head">
+      <div>
+        <div class="track-title">Latest drops 🎬</div>
+        <div class="track-meta"><span class="yt-dot" id="yt-dot"></span><span id="yt-txt">Loading videos…</span>
+          <a href="https://youtube.com/@rxj8z" target="_blank" style="color:var(--red);font-weight:700;text-decoration:none;background:rgba(255,79,100,.1);padding:3px 10px;border-radius:50px;border:1px solid rgba(255,79,100,.18);font-size:10px;margin-left:4px;">View all ↗</a>
+        </div>
+      </div>
+      <div class="arrows"><button class="arr" onclick="slideL('vtrack')">←</button><button class="arr" onclick="slideR('vtrack')">→</button></div>
+    </div>
+    <div class="track" id="vtrack">
+      <div class="vsk"><div class="vsk-img"></div><div class="vsk-body"><div class="vsk-line"></div><div class="vsk-line s"></div></div></div>
+      <div class="vsk"><div class="vsk-img"></div><div class="vsk-body"><div class="vsk-line"></div><div class="vsk-line s"></div></div></div>
+      <div class="vsk"><div class="vsk-img"></div><div class="vsk-body"><div class="vsk-line"></div><div class="vsk-line s"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔐 RESOURCES -->
+<div class="sec" id="resources">
+  <div class="sec-lbl reveal">Resources</div>
+  <h2 class="sec-ttl reveal">Video attachments &<br>exclusive files 📎</h2>
+  <div class="card reveal res-section" style="padding:0;overflow:visible;">
+    <!-- LOCKED STATE -->
+    <div class="res-locked" id="res-locked">
+      <div class="lock-icon">🔐</div>
+      <div class="lock-title">Members only content</div>
+      <p class="lock-sub">Sign in to access video attachments, downloadable files, links and exclusive photos shared by rxj8z.</p>
+      <div class="lock-btns">
+        <a class="btn-p" href="login.html?mode=signup">Create free account</a>
+        <a class="btn-s" href="login.html">Sign in</a>
+      </div>
+    </div>
+    <!-- UNLOCKED STATE -->
+    <div class="res-unlocked" id="res-unlocked" style="padding:24px;">
+      <div class="res-user-bar">
+        <div class="rub-l"><div class="rub-av" id="rub-av">R</div><span>Welcome back, <strong id="rub-name"></strong></span></div>
+        <div class="rub-r"><a onclick="signOut()" style="text-decoration:none;">Sign out</a></div>
+      </div>
+      <div class="res-filters">
+        <button class="rf on" onclick="filterRes('all',this)">All</button>
+        <button class="rf" onclick="filterRes('link',this)">🔗 Links</button>
+        <button class="rf" onclick="filterRes('file',this)">📄 Files</button>
+        <button class="rf" onclick="filterRes('photo',this)">🖼 Photos</button>
+        <button class="rf" onclick="filterRes('video',this)">🎬 Videos</button>
+      </div>
+      <div class="res-grid" id="res-grid">
+        <div class="res-empty">Loading resources…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GEAR -->
+<div class="sec" id="gear">
+  <div class="sec-lbl reveal">Setup</div>
+  <div class="reveal track-wrap">
+    <div class="track-head">
+      <div class="track-title">Creator gear 🎙</div>
+      <div class="arrows"><button class="arr" onclick="slideL('gtrack')">←</button><button class="arr" onclick="slideR('gtrack')">→</button></div>
+    </div>
+    <div class="track" id="gtrack">
+      <div class="gc card tilt"><div class="gico" style="background:rgba(34,214,95,.12);">🎙</div><div class="gn">Wired Mic</div><div class="gd">Simple wired mic for clean, clear audio on every video</div></div>
+      <div class="gc card tilt"><div class="gico" style="background:rgba(139,92,246,.12);">💻</div><div class="gn">PC Setup</div><div class="gd">Trusty basic PC — where all the content magic happens</div></div>
+      <div class="gc card tilt"><div class="gico" style="background:rgba(245,166,35,.12);">💡</div><div class="gn">Ring Light</div><div class="gd">Ring light for that clean, well-lit studio look</div></div>
+      <div class="gc card tilt"><div class="gico" style="background:rgba(255,79,100,.12);">🖥</div><div class="gn">Dual Monitors</div><div class="gd">Two screens — editing on one, research on the other</div></div>
+      <div class="gc card tilt"><div class="gico" style="background:rgba(91,115,255,.12);">📱</div><div class="gn">Samsung A35 5G</div><div class="gd">Daily driver & B-roll shooter on the go</div></div>
+    </div>
+  </div>
+  <p class="reveal" style="text-align:center;color:var(--muted);font-size:12px;margin-top:6px;">Full gear list coming soon — DM on Instagram 👇</p>
+</div>
+
+<!-- COMMUNITY -->
+<div class="sec" id="community">
+  <div class="sec-lbl reveal">Community</div>
+  <h2 class="sec-ttl reveal">Join the revolution 🚀</h2>
+  <div class="cg reveal">
+    <div class="cc card tilt">
+      <div class="cp"><div class="ci" style="background:rgba(255,79,100,.12);"><svg viewBox="0 0 24 24" width="22" fill="#FF0000"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4L15.8 12l-6.3 3.6z"/></svg></div><div><div class="cn">YouTube</div><div class="ch">@rxj8z</div></div></div>
+      <div class="cd">Full-length videos, tutorials, reviews and deep dives. Subscribe and never miss a drop.</div>
+      <div class="sld" id="sld-yt2" data-url="https://youtube.com/@rxj8z"><div class="sld-bg yt"></div><div class="sld-shine"></div><div class="sld-lbl"><svg viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4L15.8 12l-6.3 3.6z"/></svg>Slide to Subscribe</div><div class="sld-thumb" id="th-yt2"><svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4L15.8 12l-6.3 3.6z"/></svg></div></div>
+    </div>
+    <div class="cc card tilt">
+      <div class="cp"><div class="ci" style="background:rgba(139,92,246,.12);"><svg viewBox="0 0 24 24" width="22"><defs><linearGradient id="ig3" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fd1d1d"/><stop offset="50%" stop-color="#833ab4"/><stop offset="100%" stop-color="#405de6"/></linearGradient></defs><path fill="url(#ig3)" d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.6 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1s-3.6 0-4.8-.1C3.9 21.6 2.3 20 2.2 16.8c-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.3 3.9 3.9 2.3 7.2 2.2 8.4 2.1 8.8 2.2 12 2.2zm0-2.2C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9C.3 21.3 2.7 23.7 7.1 23.9 8.3 24 8.7 24 12 24s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9C23.7 2.7 21.3.3 16.9.1 15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 12 5.8zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8z"/></svg></div><div><div class="cn">Instagram</div><div class="ch">@rxj8z</div></div></div>
+      <div class="cd">Behind the scenes, quick tips, reels and daily digital world updates. Follow along.</div>
+      <div class="sld" id="sld-ig2" data-url="https://www.instagram.com/rxj8z"><div class="sld-bg ig"></div><div class="sld-shine"></div><div class="sld-lbl"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.6 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1s-3.6 0-4.8-.1C3.9 21.6 2.3 20 2.2 16.8c-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.3 3.9 3.9 2.3 7.2 2.2 8.4 2.1 8.8 2.2 12 2.2zm0-2.2C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9C.3 21.3 2.7 23.7 7.1 23.9 8.3 24 8.7 24 12 24s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9C23.7 2.7 21.3.3 16.9.1 15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 12 5.8zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8z"/></svg>Slide to Follow</div><div class="sld-thumb" id="th-ig2"><svg viewBox="0 0 24 24"><defs><linearGradient id="ig4" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fd1d1d"/><stop offset="50%" stop-color="#833ab4"/><stop offset="100%" stop-color="#405de6"/></linearGradient></defs><path fill="url(#ig4)" d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.6 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1s-3.6 0-4.8-.1C3.9 21.6 2.3 20 2.2 16.8c-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.3 3.9 3.9 2.3 7.2 2.2 8.4 2.1 8.8 2.2 12 2.2zm0-2.2C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9C.3 21.3 2.7 23.7 7.1 23.9 8.3 24 8.7 24 12 24s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9C23.7 2.7 21.3.3 16.9.1 15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 12 5.8zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8z"/></svg></div></div>
+    </div>
+    <div class="cc card tilt">
+      <div class="cp"><div class="ci" style="background:rgba(91,115,255,.12);"><svg viewBox="0 0 24 24" width="22" fill="#229ed9"><path d="M12 0a12 12 0 1 0 0 24A12 12 0 0 0 12 0zm5 7.2-2 9.3c-.1.5-.5.7-.9.4l-2.5-1.8-1.2 1.1c-.1.1-.3.2-.6.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1L6.2 14.8l-2.4-.8c-.5-.2-.5-.5.1-.7l9.5-3.7c.5-.2.9.1.6.6z"/></svg></div><div><div class="cn">Telegram</div><div class="ch">rxj8z community</div></div></div>
+      <div class="cd">Exclusive updates, early access and a community of tech enthusiasts who get it.</div>
+      <div class="sld" id="sld-tg2" data-url="https://t.me/+YBjT6hbWzE44ODc1"><div class="sld-bg tg"></div><div class="sld-shine"></div><div class="sld-lbl"><svg viewBox="0 0 24 24" fill="white"><path d="M12 0a12 12 0 1 0 0 24A12 12 0 0 0 12 0zm5 7.2-2 9.3c-.1.5-.5.7-.9.4l-2.5-1.8-1.2 1.1c-.1.1-.3.2-.6.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1L6.2 14.8l-2.4-.8c-.5-.2-.5-.5.1-.7l9.5-3.7c.5-.2.9.1.6.6z"/></svg>Slide to Join</div><div class="sld-thumb" id="th-tg2"><svg viewBox="0 0 24 24" fill="#229ed9"><path d="M12 0a12 12 0 1 0 0 24A12 12 0 0 0 12 0zm5 7.2-2 9.3c-.1.5-.5.7-.9.4l-2.5-1.8-1.2 1.1c-.1.1-.3.2-.6.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1L6.2 14.8l-2.4-.8c-.5-.2-.5-.5.1-.7l9.5-3.7c.5-.2.9.1.6.6z"/></svg></div></div>
+    </div>
+    <div class="cc card tilt">
+      <div class="cp"><div class="ci" style="background:rgba(255,255,255,.06);">🧵</div><div><div class="cn">Threads</div><div class="ch">@rxj8z</div></div></div>
+      <div class="cd">Hot takes, opinions and thoughts on the latest in tech. Join the conversation.</div>
+      <a href="https://www.instagram.com/rxj8z" target="_blank" class="btn-s" style="width:fit-content;">Follow ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- SUBSCRIBE BANNER -->
+<div class="sec reveal" style="padding-top:0;">
+  <div class="sub-banner card">
+    <div class="sb-t">Don't miss the next drop ⚡</div>
+    <p class="sb-s">Join thousands of tech enthusiasts decoding the digital world with rxj8z.</p>
+    <div class="sb-row">
+      <div class="sld" id="sld-yt3" data-url="https://youtube.com/@rxj8z"><div class="sld-bg yt"></div><div class="sld-shine"></div><div class="sld-lbl"><svg viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4L15.8 12l-6.3 3.6z"/></svg>Subscribe on YouTube</div><div class="sld-thumb" id="th-yt3"><svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4L15.8 12l-6.3 3.6z"/></svg></div></div>
+      <div class="sld" id="sld-tg3" data-url="https://t.me/+YBjT6hbWzE44ODc1"><div class="sld-bg tg"></div><div class="sld-shine"></div><div class="sld-lbl"><svg viewBox="0 0 24 24" fill="white"><path d="M12 0a12 12 0 1 0 0 24A12 12 0 0 0 12 0zm5 7.2-2 9.3c-.1.5-.5.7-.9.4l-2.5-1.8-1.2 1.1c-.1.1-.3.2-.6.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1L6.2 14.8l-2.4-.8c-.5-.2-.5-.5.1-.7l9.5-3.7c.5-.2.9.1.6.6z"/></svg>Join Telegram</div><div class="sld-thumb" id="th-tg3"><svg viewBox="0 0 24 24" fill="#229ed9"><path d="M12 0a12 12 0 1 0 0 24A12 12 0 0 0 12 0zm5 7.2-2 9.3c-.1.5-.5.7-.9.4l-2.5-1.8-1.2 1.1c-.1.1-.3.2-.6.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1L6.2 14.8l-2.4-.8c-.5-.2-.5-.5.1-.7l9.5-3.7c.5-.2.9.1.6.6z"/></svg></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="yt-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <iframe id="yt-iframe" src="" allowfullscreen allow="autoplay;encrypted-media"></iframe>
+    <div class="modal-foot"><div class="modal-title" id="yt-title"></div><button class="modal-close" onclick="closeModal()">✕ Close</button></div>
+  </div>
+</div>
+
+<footer>
+  <span class="f-logo">rxj8z</span>
+  <div class="f-links">
+    <a class="f-link" href="#about">About</a>
+    <a class="f-link" href="#resources">Resources</a>
+    <a class="f-link" href="https://youtube.com/@rxj8z" target="_blank">YouTube</a>
+    <a class="f-link" href="https://instagram.com/rxj8z" target="_blank">Instagram</a>
+    <a class="f-link" href="https://t.me/+YBjT6hbWzE44ODc1" target="_blank">Telegram</a>
+  </div>
+  <span>Made with 🖤 by Raj · 2025</span>
+</footer>
+
+<script>
+const ADMIN_EMAIL = 'your-admin@email.com'; // ← Change this to YOUR email
+
+// ── CURSOR ──
+const cur=document.getElementById('cur'),cdot=document.getElementById('cdot');
+let cx=0,cy=0,tx=0,ty=0;
+document.addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY;cdot.style.left=tx+'px';cdot.style.top=ty+'px';});
+(function a(){cx+=(tx-cx)*.16;cy+=(ty-cy)*.16;cur.style.left=cx+'px';cur.style.top=cy+'px';requestAnimationFrame(a);})();
+document.querySelectorAll('a,button,.vc,.gc,.cc,.stat-item,.pill,.arr,.modal-close,.sld-thumb,.card,.res-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cur.classList.add('h'));
+  el.addEventListener('mouseleave',()=>cur.classList.remove('h'));
+});
+document.addEventListener('mousedown',()=>cur.classList.add('c'));
+document.addEventListener('mouseup',()=>cur.classList.remove('c'));
+
+// ── PROGRESS ──
+window.addEventListener('scroll',()=>{document.getElementById('prog').style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%';},{passive:true});
+
+// ── FIREBASE AUTH STATE ──
+auth.onAuthStateChanged(user=>{
+  const navAuth=document.getElementById('nav-auth');
+  const navAv=document.getElementById('nav-avatar');
+  if(user){
+    navAuth.classList.add('hidden');
+    navAv.classList.remove('hidden');
+    const initial=(user.displayName||user.email||'U')[0].toUpperCase();
+    document.getElementById('av-letter').textContent=initial;
+    document.getElementById('dd-name').textContent=user.displayName||'Member';
+    document.getElementById('dd-email').textContent=user.email;
+    document.getElementById('rub-av').textContent=initial;
+    document.getElementById('rub-name').textContent=user.displayName||user.email.split('@')[0];
+    if(user.email===ADMIN_EMAIL)document.getElementById('dd-admin').style.display='flex';
+    document.getElementById('res-locked').style.display='none';
+    document.getElementById('res-unlocked').style.display='block';
+    loadResources('all');
+  }else{
+    navAuth.classList.remove('hidden');
+    navAv.classList.add('hidden');
+    document.getElementById('res-locked').style.display='flex';
+    document.getElementById('res-unlocked').style.display='none';
+  }
+});
+
+function signOut(){auth.signOut();}
+
+// ── LOAD RESOURCES ──
+let currentFilter='all';
+async function loadResources(filter){
+  currentFilter=filter;
+  const grid=document.getElementById('res-grid');
+  grid.innerHTML='<div class="res-empty">Loading…</div>';
+  try{
+    let q=db.collection('resources').orderBy('createdAt','desc');
+    if(filter!=='all')q=q.where('type','==',filter);
+    const snap=await q.get();
+    if(snap.empty){grid.innerHTML=`<div class="res-empty">No ${filter==='all'?'':filter+' '}resources yet. Check back soon! 🚀</div>`;return;}
+    grid.innerHTML='';
+    snap.forEach(doc=>{
+      const d=doc.data();
+      const badge={link:'rb-link',file:'rb-file',photo:'rb-photo',video:'rb-video'}[d.type]||'rb-link';
+      const label={link:'🔗 Link',file:'📄 File',photo:'🖼 Photo',video:'🎬 Video'}[d.type]||'🔗 Link';
+      const date=d.createdAt?.toDate?new Date(d.createdAt.toDate()).toLocaleDateString('en',{month:'short',day:'numeric',year:'numeric'}):'';
+      const card=document.createElement('div');
+      card.className='res-card card';
+      card.innerHTML=`
+        ${d.thumbnail?`<img class="res-thumb" src="${d.thumbnail}" alt="${d.title}" loading="lazy">`:''}
+        <div class="res-top"><span class="res-badge ${badge}">${label}</span>${d.videoRef?`<span style="font-size:10px;color:var(--dim)">📹 ${d.videoRef}</span>`:''}</div>
+        <div class="res-title">${d.title}</div>
+        <div class="res-desc">${d.description||''}</div>
+        <div class="res-foot">
+          <span class="res-date">${date}${d.size?' · '+d.size:''}</span>
+          <a class="res-action" href="${d.url}" target="_blank" rel="noopener">${d.type==='file'?'Download ↓':d.type==='photo'?'View ↗':'Open ↗'}</a>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }catch(e){grid.innerHTML='<div class="res-empty">Could not load resources. Make sure Firestore rules are configured.</div>';}
+}
+
+function filterRes(type,btn){
+  document.querySelectorAll('.rf').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  loadResources(type);
+}
+
+// ── TILT ──
+document.querySelectorAll('.tilt').forEach(c=>{
+  c.addEventListener('mouseenter',()=>{c.style.transition='transform .1s linear';});
+  c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;c.style.transform=`perspective(900px) rotateX(${(y-.5)*12}deg) rotateY(${(x-.5)*-12}deg) scale(1.02)`;});
+  c.addEventListener('mouseleave',()=>{c.style.transition='transform .6s cubic-bezier(.34,1.2,.64,1)';c.style.transform='perspective(900px) rotateX(0) rotateY(0) scale(1)';});
+});
+
+// ── TRACK DRAG ──
+function initTrack(id){
+  const t=document.getElementById(id);if(!t)return;
+  let isDown=false,sx,sl,lx;t._vx=0;
+  t.addEventListener('mousedown',e=>{isDown=true;sx=e.pageX-t.offsetLeft;sl=t.scrollLeft;lx=e.pageX;t._vx=0;cancelAnimationFrame(t._r);});
+  t.addEventListener('mouseleave',()=>{isDown=false;mom(t);});
+  t.addEventListener('mouseup',()=>{isDown=false;mom(t);});
+  t.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();t.scrollLeft=sl-(e.pageX-t.offsetLeft-sx);t._vx=e.pageX-lx;lx=e.pageX;});
+  t.addEventListener('touchstart',e=>{sx=e.touches[0].pageX;sl=t.scrollLeft;t._vx=0;lx=sx;cancelAnimationFrame(t._r);},{passive:true});
+  t.addEventListener('touchmove',e=>{t.scrollLeft=sl-(e.touches[0].pageX-sx);t._vx=e.touches[0].pageX-lx;lx=e.touches[0].pageX;},{passive:true});
+  t.addEventListener('touchend',()=>mom(t));
+}
+function mom(t){cancelAnimationFrame(t._r);(function lp(){if(Math.abs(t._vx)<.5)return;t.scrollLeft-=t._vx;t._vx*=.91;t._r=requestAnimationFrame(lp);})();}
+function slideL(id){document.getElementById(id)?.scrollBy({left:-280,behavior:'smooth'});}
+function slideR(id){document.getElementById(id)?.scrollBy({left:280,behavior:'smooth'});}
+initTrack('vtrack');initTrack('gtrack');
+
+// ── TERMINAL ──
+const tl=[{t:'whoami'},{t:'→ Raj | Creator | rxj8z',c:'tc'},{t:'cat mission.txt'},{t:'→ Decoding the digital world 🌐',c:'tc'},{t:'ls content/'},{t:'→ gadgets/  ai/  web/  tips/',c:'to'},{t:'echo $STATUS'},{t:'→ Growing every day 🚀',c:'tp'}];
+const tout=document.getElementById('term-out'),tcur=document.getElementById('tcur');let ts=0;
+function tprompt(){const d=document.createElement('div');d.innerHTML=`<span class="tc">raj@rxj8z</span><span class="tm">:</span><span class="tb">~</span><span class="tm">$ </span>`;tout.insertBefore(d,tcur);}
+function ttype(tx,col,cb){const s=document.createElement('span');if(col)s.className=col;tout.insertBefore(s,tcur);let i=0;const iv=setInterval(()=>{s.textContent+=tx[i++];tout.scrollTop=tout.scrollHeight;if(i>=tx.length){clearInterval(iv);setTimeout(cb,220);}},40);}
+function tres(t,c){const d=document.createElement('div');d.innerHTML=`<span class="${c||'tm'}">${t}</span>`;tout.insertBefore(d,tcur);tout.scrollTop=tout.scrollHeight;}
+function runT(){if(ts>=tl.length){ts=0;setTimeout(runT,2000);return;}const l=tl[ts];if(l.c){tres(l.t,l.c);ts++;setTimeout(runT,650);}else{tprompt();ttype(l.t,'',()=>{ts++;setTimeout(runT,240);});}}
+setTimeout(runT,800);
+
+// ── SLIDE TO ACTION ──
+function initSlide(sId,tId){
+  const s=document.getElementById(sId),th=document.getElementById(tId);
+  if(!s||!th)return;
+  const url=s.dataset.url;
+  let drag=false,sx=0,pos=0;const pad=5;
+  function tw(){return th.offsetWidth||47;}
+  function max(){return s.offsetWidth-tw()-pad*2;}
+  function setPos(x){x=Math.max(0,Math.min(x,max()));th.style.left=(pad+x)+'px';const p=x/max();const lb=s.querySelector('.sld-lbl');if(lb)lb.style.opacity=Math.max(0,1-p*1.8);return p;}
+  function onStart(cx){if(s.classList.contains('done'))return;drag=true;sx=cx-pos;th.style.transition='none';}
+  function onMove(cx){if(!drag)return;pos=cx-sx;if(setPos(pos)>=.82)complete();}
+  function onEnd(){if(!drag)return;drag=false;if(pos/max()<.82){th.style.transition='left .5s cubic-bezier(.34,1.56,.64,1)';pos=0;setPos(0);const lb=s.querySelector('.sld-lbl');if(lb){lb.style.transition='opacity .3s';lb.style.opacity=1;}}}
+  function complete(){drag=false;s.classList.add('done');th.style.transition='left .42s cubic-bezier(.34,1.56,.64,1)';th.style.left=(s.offsetWidth-tw()-pad)+'px';th.classList.add('pop');setTimeout(()=>th.classList.remove('pop'),400);setTimeout(()=>window.open(url,'_blank'),480);setTimeout(()=>{s.classList.remove('done');th.style.transition='left .5s cubic-bezier(.34,1.56,.64,1)';th.style.left=pad+'px';pos=0;const lb=s.querySelector('.sld-lbl');if(lb)lb.style.opacity=1;},2600);}
+  th.addEventListener('mousedown',e=>{e.preventDefault();onStart(e.clientX);});
+  window.addEventListener('mousemove',e=>{if(drag)onMove(e.clientX);});
+  window.addEventListener('mouseup',onEnd);
+  th.addEventListener('touchstart',e=>{e.preventDefault();onStart(e.touches[0].clientX);},{passive:false});
+  window.addEventListener('touchmove',e=>{if(drag){e.preventDefault();onMove(e.touches[0].clientX);}},{passive:false});
+  window.addEventListener('touchend',onEnd);
+}
+[['sld-yt','th-yt'],['sld-ig','th-ig'],['sld-tg','th-tg'],['sld-yt2','th-yt2'],['sld-ig2','th-ig2'],['sld-tg2','th-tg2'],['sld-yt3','th-yt3'],['sld-tg3','th-tg3']].forEach(([s,t])=>initSlide(s,t));
+
+// ── YOUTUBE API ──
+const YK='AIzaSyBXNd4NLBm3pxXf22guIdEXLcbNG07p454',YC='UCY6HhUBYZuxEDMU7IfyrblQ';
+function ago(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<2592000)return Math.floor(s/86400)+'d ago';return Math.floor(s/2592000)+'mo ago';}
+function openModal(vid,title){document.getElementById('yt-iframe').src=`https://www.youtube.com/embed/${vid}?autoplay=1`;document.getElementById('yt-title').textContent=title;document.getElementById('yt-modal').classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(){document.getElementById('yt-modal').classList.remove('open');document.getElementById('yt-iframe').src='';document.body.style.overflow='';}
+async function fetchVideos(){
+  const track=document.getElementById('vtrack'),dot=document.getElementById('yt-dot'),txt=document.getElementById('yt-txt');
+  try{
+    const res=await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YK}&channelId=${YC}&part=snippet&order=date&maxResults=8&type=video`);
+    const data=await res.json();
+    if(!data.items?.length)throw new Error();
+    dot.style.background='var(--green)';txt.textContent=`${data.items.length} videos loaded ✓`;
+    track.innerHTML='';
+    data.items.forEach((item,i)=>{
+      const vid=item.id.videoId,s=item.snippet;
+      const card=document.createElement('div');
+      card.className='vc card';
+      card.innerHTML=`<div class="vth"><img src="${s.thumbnails?.high?.url||''}" alt="${s.title}" loading="lazy"><div class="vplay"><div class="vpbtn">▶</div></div></div><div class="vbody"><div class="vtag">Tech</div><div class="vtitle">${s.title}</div><div class="vmeta">${ago(s.publishedAt)} · rxj8z</div></div>`;
+      card.onclick=()=>openModal(vid,s.title);
+      track.appendChild(card);
+      card.style.cssText='opacity:0;transform:translateY(16px);';
+      setTimeout(()=>{card.style.transition='opacity .5s ease,transform .5s cubic-bezier(.34,1.2,.64,1)';card.style.opacity='1';card.style.transform='translateY(0)';},i*70);
+      card.addEventListener('mouseenter',()=>cur.classList.add('h'));
+      card.addEventListener('mousemove',e=>{const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;card.style.transform=`perspective(900px) rotateX(${(y-.5)*10}deg) rotateY(${(x-.5)*-10}deg) scale(1.02)`;});
+      card.addEventListener('mouseleave',()=>{cur.classList.remove('h');card.style.transition='transform .6s cubic-bezier(.34,1.2,.64,1)';card.style.transform='';});
+    });
+  }catch(e){
+    dot.style.background='var(--red)';txt.textContent='Host on Netlify to load videos';
+    track.innerHTML=`<div style="padding:44px 24px;color:var(--muted);text-align:center;min-width:275px;"><div style="font-size:28px;margin-bottom:10px;">⚠️</div><div style="font-size:13px;margin-bottom:14px;">Deploy to Netlify to see live videos</div><a href="https://youtube.com/@rxj8z" target="_blank" style="color:var(--red);font-weight:700;text-decoration:none;">▶ Watch on YouTube ↗</a></div>`;
+  }
+}
+fetchVideos();
+
+// ── SCROLL REVEAL ──
+const obs=new IntersectionObserver(es=>{es.forEach((e,i)=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('on'),i*60);});},{threshold:.07});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+</script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Panel — rxj8z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#05050e;--sidebar:#09091a;--card:rgba(255,255,255,.044);--card2:rgba(255,255,255,.075);--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.16);--text:#eeeeff;--muted:rgba(238,238,255,.44);--dim:rgba(238,238,255,.18);--blue:#5B73FF;--indigo:#8B5CF6;--amber:#F5A623;--green:#22D65F;--red:#FF4F64;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:240px;min-height:100vh;background:var(--sidebar);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;gap:6px;flex-shrink:0;position:sticky;top:0;}
+.s-logo{font-family:'Syne',sans-serif;font-weight:900;font-size:20px;letter-spacing:-.04em;background:linear-gradient(120deg,#fff 20%,var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;padding:8px 12px 20px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.s-label{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:4px 12px;margin-top:8px;}
+.s-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-size:13px;color:var(--muted);cursor:pointer;transition:all .22s;border:none;background:none;width:100%;font-family:'DM Sans',sans-serif;text-decoration:none;}
+.s-link:hover{background:var(--card2);color:var(--text);}
+.s-link.on{background:rgba(91,115,255,.14);color:var(--text);border-left:2px solid var(--blue);}
+.s-sep{height:1px;background:var(--border);margin:8px 0;}
+.s-bottom{margin-top:auto;padding-top:16px;border-top:1px solid var(--border);}
+.s-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;}
+.s-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--indigo));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.s-user-info{flex:1;min-width:0;}
+.s-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.s-email{font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* MAIN */
+.main{flex:1;padding:32px;overflow-y:auto;}
+.page{display:none;}
+.page.on{display:block;}
+.page-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:28px;}
+
+/* STATS CARDS */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:28px;}
+.stat-c{background:var(--card);border:1px solid var(--border);border-top-color:var(--border2);border-radius:16px;padding:20px;position:relative;overflow:hidden;}
+.stat-c::before{content:'';position:absolute;inset:0;background:linear-gradient(148deg,rgba(255,255,255,.05) 0%,transparent 40%);pointer-events:none;}
+.stat-c-n{font-family:'Syne',sans-serif;font-size:30px;font-weight:900;letter-spacing:-.04em;margin-bottom:3px;}
+.stat-c-l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:500;}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-top-color:var(--border2);border-radius:18px;padding:24px;position:relative;overflow:hidden;margin-bottom:20px;}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(148deg,rgba(255,255,255,.05) 0%,transparent 40%);pointer-events:none;}
+.card>*{position:relative;z-index:1;}
+.card-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+@media(max-width:600px){.form-row{grid-template-columns:1fr;}}
+.field{margin-bottom:14px;}
+label{display:block;font-size:11.5px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.03em;}
+input,select,textarea{width:100%;padding:11px 14px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-top-color:var(--border2);color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:all .25s;}
+input::placeholder,textarea::placeholder{color:rgba(238,238,255,.22);}
+input:focus,select:focus,textarea:focus{border-color:rgba(91,115,255,.45);background:rgba(91,115,255,.06);box-shadow:0 0 0 3px rgba(91,115,255,.1);}
+select option{background:#0e0e1e;}
+textarea{resize:vertical;min-height:80px;line-height:1.5;}
+
+/* UPLOAD DROP ZONE */
+.drop-zone{border:2px dashed var(--border2);border-radius:16px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .3s;margin-bottom:14px;}
+.drop-zone:hover,.drop-zone.over{border-color:var(--blue);background:rgba(91,115,255,.06);}
+.drop-zone input{display:none;}
+.drop-icon{font-size:32px;margin-bottom:10px;}
+.drop-text{font-size:14px;color:var(--muted);}
+.drop-text strong{color:var(--text);}
+.drop-small{font-size:11px;color:var(--dim);margin-top:4px;}
+.file-preview{background:rgba(91,115,255,.08);border:1px solid rgba(91,115,255,.2);border-radius:12px;padding:12px 16px;display:none;align-items:center;gap:12px;margin-bottom:14px;}
+.file-preview.show{display:flex;}
+.fp-icon{font-size:22px;}
+.fp-info{flex:1;min-width:0;}
+.fp-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fp-size{font-size:11px;color:var(--muted);}
+.fp-clear{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px;transition:color .2s;}
+.fp-clear:hover{color:var(--red);}
+
+/* PROGRESS BAR */
+.upload-progress{margin-bottom:14px;display:none;}
+.upload-progress.show{display:block;}
+.up-bar-wrap{background:rgba(255,255,255,.06);border-radius:50px;height:6px;overflow:hidden;margin-top:6px;}
+.up-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--indigo));border-radius:50px;width:0%;transition:width .2s;}
+.up-text{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;}
+
+/* BUTTONS */
+.btn-p{background:var(--blue);color:#fff;padding:11px 22px;border-radius:12px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .3s;box-shadow:0 0 20px rgba(91,115,255,.28);display:inline-flex;align-items:center;gap:7px;}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(91,115,255,.42);}
+.btn-p:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-d{background:rgba(255,79,100,.1);color:var(--red);padding:7px 14px;border-radius:10px;font-size:12px;font-weight:600;border:1px solid rgba(255,79,100,.2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .25s;}
+.btn-d:hover{background:rgba(255,79,100,.18);border-color:rgba(255,79,100,.35);}
+.btn-s{background:var(--card2);color:var(--text);padding:11px 22px;border-radius:12px;font-size:13px;font-weight:600;border:1px solid var(--border);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .25s;display:inline-flex;align-items:center;gap:7px;}
+.btn-s:hover{background:rgba(255,255,255,.1);border-color:var(--border2);}
+
+/* RESOURCE TABLE */
+.res-list{display:flex;flex-direction:column;gap:10px;}
+.res-row{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:all .25s;}
+.res-row:hover{background:var(--card2);border-color:var(--border2);}
+.rr-type{font-size:20px;flex-shrink:0;}
+.rr-info{flex:1;min-width:0;}
+.rr-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rr-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.rr-badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:20px;margin-left:6px;letter-spacing:.04em;}
+.rb-link{background:rgba(91,115,255,.14);color:var(--blue);}
+.rb-file{background:rgba(245,166,35,.14);color:var(--amber);}
+.rb-photo{background:rgba(34,214,95,.14);color:var(--green);}
+.rb-video{background:rgba(255,79,100,.14);color:var(--red);}
+.rr-actions{display:flex;gap:8px;flex-shrink:0;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;padding:14px 20px;border-radius:14px;font-size:13px;font-weight:600;z-index:9999;transform:translateY(20px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);pointer-events:none;display:flex;align-items:center;gap:8px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{background:rgba(34,214,95,.12);border:1px solid rgba(34,214,95,.3);color:var(--green);}
+.toast.err{background:rgba(255,79,100,.12);border:1px solid rgba(255,79,100,.3);color:var(--red);}
+
+/* TYPE TOGGLE */
+.type-toggle{display:flex;gap:0;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:50px;padding:3px;margin-bottom:14px;}
+.tt-btn{flex:1;padding:7px 6px;border-radius:50px;text-align:center;font-size:12px;font-weight:600;cursor:pointer;transition:all .25s;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;}
+.tt-btn.on{background:var(--blue);color:#fff;}
+
+.msg{background:rgba(91,115,255,.07);border:1px solid rgba(91,115,255,.15);border-radius:12px;padding:16px;font-size:13px;color:var(--muted);text-align:center;}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block;}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- FIREBASE -->
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBENiFatE6ZAd86GfmC2JECwjYedMKdSbA",
+  authDomain: "rxj8z-backend.firebaseapp.com",
+  projectId: "rxj8z-backend",
+  storageBucket: "rxj8z-backend.firebasestorage.app",
+  messagingSenderId: "170293636064",
+  appId: "1:170293636064:web:bd9893cc73f12f6d229985"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const ADMIN_EMAIL = 'your-admin@email.com'; // ← MUST match index.html
+</script>
+
+<div id="access-check" style="display:flex;align-items:center;justify-content:center;width:100%;height:100vh;font-size:14px;color:rgba(238,238,255,.4);">
+  Checking access…
+</div>
+
+<div id="admin-ui" style="display:none;width:100%;display:none;flex:1;">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="s-logo">rxj8z admin</div>
+    <button class="s-link on" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+    <button class="s-link" onclick="showPage('upload',this)">📤 Upload Resource</button>
+    <button class="s-link" onclick="showPage('resources',this)">📎 Manage Resources</button>
+    <div class="s-sep"></div>
+    <a class="s-link" href="index.html" target="_blank">🌐 View Site ↗</a>
+    <div class="s-bottom">
+      <div class="s-user">
+        <div class="s-av" id="s-av">R</div>
+        <div class="s-user-info">
+          <div class="s-name" id="s-name">Admin</div>
+          <div class="s-email" id="s-email"></div>
+        </div>
+      </div>
+      <button class="s-link" onclick="auth.signOut().then(()=>window.location.href='login.html')" style="color:rgba(255,79,100,.7);">🚪 Sign Out</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page on" id="page-dashboard">
+      <div class="page-title">Dashboard</div>
+      <p class="page-sub">Overview of your rxj8z website</p>
+      <div class="stat-row">
+        <div class="stat-c"><div class="stat-c-n" id="st-res" style="color:var(--blue)">–</div><div class="stat-c-l">Total Resources</div></div>
+        <div class="stat-c"><div class="stat-c-n" id="st-links" style="color:var(--indigo)">–</div><div class="stat-c-l">Links</div></div>
+        <div class="stat-c"><div class="stat-c-n" id="st-files" style="color:var(--amber)">–</div><div class="stat-c-l">Files</div></div>
+        <div class="stat-c"><div class="stat-c-n" id="st-photos" style="color:var(--green)">–</div><div class="stat-c-l">Photos</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚡ Quick Actions</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-p" onclick="showPage('upload',document.querySelector('[onclick*=upload]'))">📤 Upload New Resource</button>
+          <button class="btn-s" onclick="showPage('resources',document.querySelector('[onclick*=resources]'))">📋 View All Resources</button>
+          <a class="btn-s" href="index.html" target="_blank">🌐 View Website</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Recent Resources</div>
+        <div class="res-list" id="dash-recent"><div class="msg">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="page" id="page-upload">
+      <div class="page-title">Upload Resource</div>
+      <p class="page-sub">Add links, files, photos or video resources for signed-in users</p>
+
+      <div class="card">
+        <div class="card-title">Resource Type</div>
+        <div class="type-toggle">
+          <button class="tt-btn on" onclick="setType('link',this)">🔗 Link</button>
+          <button class="tt-btn" onclick="setType('file',this)">📄 File</button>
+          <button class="tt-btn" onclick="setType('photo',this)">🖼 Photo</button>
+          <button class="tt-btn" onclick="setType('video',this)">🎬 Video</button>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Title *</label>
+            <input type="text" id="r-title" placeholder="e.g. Best AI Tools List">
+          </div>
+          <div class="field">
+            <label>Related Video (optional)</label>
+            <input type="text" id="r-video" placeholder="e.g. Top 10 AI Tools 2025">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Description</label>
+          <textarea id="r-desc" placeholder="Describe what this resource is…"></textarea>
+        </div>
+
+        <!-- URL INPUT (all types) -->
+        <div class="field">
+          <label id="url-label">URL *</label>
+          <input type="url" id="r-url" placeholder="https://example.com">
+          <div id="url-hint" style="font-size:11px;color:var(--muted);margin-top:5px;"></div>
+        </div>
+        <div class="field">
+          <label>Thumbnail / Preview Image URL <span style="color:var(--dim);font-weight:400;">(optional)</span></label>
+          <input type="url" id="r-thumb" placeholder="https://...image.jpg">
+          <div style="font-size:11px;color:var(--dim);margin-top:5px;">Paste an image URL to show a preview card. Use <a href="https://imgbb.com" target="_blank" style="color:var(--blue);">imgbb.com</a> for free image hosting.</div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+          <button class="btn-p" id="upload-btn" onclick="submitResource()">📤 Publish Resource</button>
+          <button class="btn-s" onclick="resetForm()">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESOURCES LIST -->
+    <div class="page" id="page-resources">
+      <div class="page-title">Manage Resources</div>
+      <p class="page-sub">View, preview and delete published resources</p>
+      <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+        <button class="btn-s" onclick="loadAllResources('all')">All</button>
+        <button class="btn-s" onclick="loadAllResources('link')">🔗 Links</button>
+        <button class="btn-s" onclick="loadAllResources('file')">📄 Files</button>
+        <button class="btn-s" onclick="loadAllResources('photo')">🖼 Photos</button>
+        <button class="btn-s" onclick="loadAllResources('video')">🎬 Videos</button>
+      </div>
+      <div class="res-list" id="all-res-list"><div class="msg">Loading…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentType = 'link';
+
+// ── AUTH CHECK ──
+auth.onAuthStateChanged(user=>{
+  if(!user){window.location.href='login.html';return;}
+  if(user.email!==ADMIN_EMAIL){
+    document.getElementById('access-check').innerHTML='<div style="text-align:center;"><div style="font-size:40px;margin-bottom:16px;">🚫</div><div style="font-size:18px;font-weight:700;margin-bottom:8px;">Access Denied</div><div style="color:rgba(238,238,255,.44);font-size:13px;margin-bottom:20px;">This panel is for admins only.</div><a href="index.html" style="color:#5B73FF;text-decoration:none;font-weight:600;">← Back to site</a></div>';
+    return;
+  }
+  document.getElementById('access-check').style.display='none';
+  const ui=document.getElementById('admin-ui');
+  ui.style.display='flex';
+  const i=(user.displayName||user.email||'A')[0].toUpperCase();
+  document.getElementById('s-av').textContent=i;
+  document.getElementById('s-name').textContent=user.displayName||'Admin';
+  document.getElementById('s-email').textContent=user.email;
+  loadDashboard();
+  loadAllResources('all');
+});
+
+// ── NAVIGATION ──
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.s-link').forEach(l=>l.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  if(el)el.classList.add('on');
+}
+
+// ── DASHBOARD ──
+async function loadDashboard(){
+  try{
+    const snap=await db.collection('resources').get();
+    const all=snap.docs.map(d=>d.data());
+    document.getElementById('st-res').textContent=all.length;
+    document.getElementById('st-links').textContent=all.filter(d=>d.type==='link').length;
+    document.getElementById('st-files').textContent=all.filter(d=>d.type==='file').length;
+    document.getElementById('st-photos').textContent=all.filter(d=>d.type==='photo').length;
+    const recent=snap.docs.slice(0,5);
+    const list=document.getElementById('dash-recent');
+    if(!recent.length){list.innerHTML='<div class="msg">No resources yet. Upload your first one!</div>';return;}
+    list.innerHTML='';
+    recent.forEach(doc=>list.appendChild(buildRow(doc.id,doc.data())));
+  }catch(e){console.error(e);}
+}
+
+async function loadAllResources(filter){
+  const list=document.getElementById('all-res-list');
+  list.innerHTML='<div class="msg"><div class="spin"></div> Loading…</div>';
+  try{
+    let q=db.collection('resources').orderBy('createdAt','desc');
+    if(filter!=='all')q=q.where('type','==',filter);
+    const snap=await q.get();
+    if(snap.empty){list.innerHTML='<div class="msg">No resources found.</div>';return;}
+    list.innerHTML='';
+    snap.forEach(doc=>list.appendChild(buildRow(doc.id,doc.data())));
+  }catch(e){list.innerHTML='<div class="msg">Error loading. Check Firestore.</div>';}
+}
+
+function buildRow(id,d){
+  const icons={link:'🔗',file:'📄',photo:'🖼',video:'🎬'};
+  const badges={link:'rb-link',file:'rb-file',photo:'rb-photo',video:'rb-video'};
+  const row=document.createElement('div');
+  row.className='res-row';
+  row.id='row-'+id;
+  const date=d.createdAt?.toDate?new Date(d.createdAt.toDate()).toLocaleDateString('en',{month:'short',day:'numeric',year:'numeric'}):'';
+  row.innerHTML=`
+    <div class="rr-type">${icons[d.type]||'📎'}</div>
+    <div class="rr-info">
+      <div class="rr-title">${d.title}<span class="rr-badge ${badges[d.type]||'rb-link'}">${d.type||'link'}</span></div>
+      <div class="rr-meta">${date}${d.videoRef?' · '+d.videoRef:''}${d.size?' · '+d.size:''}</div>
+    </div>
+    <div class="rr-actions">
+      <a href="${d.url}" target="_blank" class="btn-s" style="padding:6px 12px;font-size:12px;">Open ↗</a>
+      <button class="btn-d" onclick="deleteResource('${id}')">Delete</button>
+    </div>`;
+  return row;
+}
+
+async function deleteResource(id){
+  if(!confirm('Delete this resource? This cannot be undone.'))return;
+  try{
+    await db.collection('resources').doc(id).delete();
+    document.getElementById('row-'+id)?.remove();
+    toast('Resource deleted','ok');
+    loadDashboard();
+  }catch(e){toast('Error: '+e.message,'err');}
+}
+
+// ── TYPE TOGGLE ──
+const typeHints = {
+  link: { label: 'URL *', placeholder: 'https://example.com', hint: 'Any website link — tool, article, resource…' },
+  file: { label: 'File URL *', placeholder: 'https://drive.google.com/file/d/...', hint: '📁 Upload to Google Drive → Share → "Anyone with link" → paste here' },
+  photo: { label: 'Image URL *', placeholder: 'https://i.ibb.co/...', hint: '🖼 Upload to <a href="https://imgbb.com" target="_blank" style="color:var(--blue)">imgbb.com</a> → copy "Direct link" → paste here' },
+  video: { label: 'Video URL *', placeholder: 'https://youtube.com/watch?v=...', hint: '🎬 Upload to YouTube as Unlisted → copy link → paste here' }
+};
+function setType(type, el){
+  currentType = type;
+  document.querySelectorAll('.tt-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  const h = typeHints[type];
+  document.getElementById('url-label').textContent = h.label;
+  document.getElementById('r-url').placeholder = h.placeholder;
+  document.getElementById('url-hint').innerHTML = h.hint;
+}
+
+
+// ── SUBMIT RESOURCE ──
+async function submitResource(){
+  const title = document.getElementById('r-title').value.trim();
+  const desc  = document.getElementById('r-desc').value.trim();
+  const videoRef = document.getElementById('r-video').value.trim();
+  const url   = document.getElementById('r-url').value.trim();
+  const thumb = document.getElementById('r-thumb').value.trim();
+
+  if(!title){ toast('Please enter a title','err'); return; }
+  if(!url){ toast('Please enter a URL','err'); return; }
+
+  const btn = document.getElementById('upload-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spin"></div> Publishing…';
+
+  try{
+    await db.collection('resources').add({
+      title, description: desc, type: currentType,
+      url, thumbnail: thumb, videoRef,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    toast('✓ Resource published!', 'ok');
+    resetForm();
+    loadDashboard();
+  } catch(e){
+    toast('Error: ' + e.message, 'err');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '📤 Publish Resource';
+}
+
+function resetForm(){
+  ['r-title','r-desc','r-video','r-url','r-thumb'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  setType('link', document.querySelector('.tt-btn'));
+}
+
+// ── TOAST ──
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>
